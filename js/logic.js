@@ -1,4 +1,4 @@
-// Create API endpoint inside queryURL
+//Create API endpoint inside queryURL
 var queryURL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
 // Define markersize for magnitude
@@ -69,31 +69,32 @@ function createFeatures(earthquakeData) {
   createMap(earthquakes);
 }
 
-// Create map
+//Create map
 function createMap(earthquakes) {
 
-    // Define maps and layers
-  var satelliteMap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
-    attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+  // Define maps and layers
+  var streetMap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+    attribution: "Map data &copy; <a href='https://www.openstreetmap.org/'>OpenStreetMap</a> contributors, <a href='https://creativecommons.org/licenses/by-sa/2.0/'>CC-BY-SA</a>, Imagery © <a href='https://www.mapbox.com/'>Mapbox</a>",
     maxZoom: 18,
-    id: "mapbox.satellite",
+    id: "mapbox.streets",
     accessToken: API_KEY
   });
 
-  var darkMap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
-    attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
-    maxZoom: 18,
-    id: "mapbox.dark",
-    accessToken: API_KEY
-  });
 
-  // Define basemaps
+   var darkMap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+  attribution: "Map data &copy; <a href='https://www.openstreetmap.org/'>OpenStreetMap</a> contributors, <a href='https://creativecommons.org/licenses/by-sa/2.0/'>CC-BY-SA</a>, Imagery © <a href='https://www.mapbox.com/'>Mapbox</a>",
+  maxZoom: 18,
+  id: "mapbox.dark",
+  accessToken: API_KEY
+});
+
+// Define basemaps
   var baseMaps = {
-    "Satellite Map": satelliteMap,
+    "Street Map": streetMap,
     "Dark Map": darkMap
   };
 
-  // Create overlay object to hold overlay layer
+  //Create overlay object to hold overlay layer
   var overlayMaps = {
     Earthquakes: earthquakes
   };
@@ -102,7 +103,7 @@ function createMap(earthquakes) {
   var myMap = L.map("map", {
     center: [40.7, -94.5],
     zoom: 3,
-    layers: [satelliteMap, earthquakes]
+    layers: [streetMap, earthquakes]
   });
   
   // Create a layer control
@@ -111,5 +112,30 @@ function createMap(earthquakes) {
   L.control.layers(baseMaps, overlayMaps, {
     collapsed: false
   }).addTo(myMap);
+
+
+// Create the legend
+var legend = L.control({
+  position: "bottomright"
+});
+
+
+legend.onAdd = function(myMap) {
+  var legend_loc = L.DomUtil.create("div", "info legend"),
+  levels = [0, 1, 2, 3, 4, 5]
+  
+  legend_loc.innerHTML+='Magnitude<br><hr>'
+  // Loop through magnitude intervals and generate a label with a colored square for each interval
+  for (var i = 0; i < levels.length; i++) {
+    
+      legend_loc.innerHTML +=
+      '<i style="background:' + colorRange(levels[i] + 1) + '">&nbsp&nbsp&nbsp&nbsp</i> ' +
+      levels[i] + (levels[i + 1] ? '&ndash;' + levels[i + 1] + '<br>' : '+');
+
+  }
+  return legend_loc;
 };
 
+// Add legend to the map
+legend.addTo(myMap);
+};
